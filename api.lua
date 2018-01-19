@@ -16,6 +16,7 @@ local function get_shelf_formspec(inv_size)
 end
 
 local temp_texture
+local temp_size
 
 local function get_obj_dir(param2)
 	return ((param2 + 1) % 4)
@@ -104,8 +105,13 @@ local function update_shelf(pos)
 			if not list[i]:is_empty() then
 				minetest.log("Adding item entity at "..minetest.pos_to_string(obj_pos))
 				temp_texture = list[i]:get_name()
+				temp_size = 0.8/max_shown_items
+				minetest.log("Size: "..dump(temp_size))
 				local ent = minetest.add_entity(obj_pos, "itemshelf:item")
-				ent:set_properties({wield_item = temp_texture})
+				ent:set_properties({
+					wield_item = temp_texture,
+					visual_size = {x = 0.8/max_shown_items, y = 0.8/max_shown_items}
+				})
 			end
 		end
 	end
@@ -188,28 +194,52 @@ minetest.register_entity("itemshelf:item", {
 	collisionbox = {0,0,0, 0,0,0},
 	physical = false,
 	on_activate = function(self, staticdata)
-		--minetest.log("static data: "..dump(staticdata))
+		-- Staticdata
+		local data = {}
+		if staticdata ~= nil and staticdata ~= "" then
+			local cols = string.split(staticdata, "|")
+			data["itemstring"] = cols[1]
+			data["visualsize"] = tonumber(cols[2])
+		end
+
+		-- Texture
 		if temp_texture ~= nil then
 			-- Set texture from temp
 			self.itemstring = temp_texture
 			temp_texture = nil
 		elseif staticdata ~= nil and staticdata ~= "" then
 			-- Set texture from static data
-			local data = staticdata
-			if data then
-				self.itemstring = data
-			end
+			self.itemstring = data.itemstring
 		end
 		-- Set texture if available
 		if self.itemstring ~= nil then
-			self.object:set_properties({wield_item = self.itemstring})
-			self.object:set_properties(self)
+			self.wield_item = self.itemstring
 		end
+		
+		-- Visual size
+		if temp_size ~= nil then
+			self.visualsize = temp_size
+			temp_size = nil
+		elseif staticdata ~= nil and staticdata ~= "" then
+			self.visualsize = data.visualsize
+		end
+		-- Set visual size if available
+		if self.visualsize ~= nil then
+			self.visual_size = {x=self.visualsize, y=self.visualsize}
+		end
+
+		-- Set object properties
+		self.object:set_properties(self)
+		
 	end,
 	get_staticdata = function(self)
+		local result = ""
 		if self.itemstring ~= nil then
-			return self.itemstring
+			result = self.itemstring.."|"
 		end
-		return ""
+		if self.visualsize ~= nil then
+			result = result..self.visualsize
+		end
+		return result
 	end,
 })
