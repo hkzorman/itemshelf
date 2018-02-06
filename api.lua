@@ -30,9 +30,28 @@ local function update_shelf(pos)
 	end
 
 	local node = minetest.get_node(pos)
+	local meta = minetest.get_meta(pos)
+	-- Calculate directions
 	local node_dir = minetest.facedir_to_dir(((node.param2 + 2) % 4))
 	local obj_dir = minetest.facedir_to_dir(get_obj_dir(node.param2))
+	-- Get maximum number of shown items (4 or 6)
 	local max_shown_items = minetest.get_item_group(node.name, "itemshelf_shown_items")
+	-- Get custom displacement properties
+	local depth_displacement = meta:get_float("itemshelf:depth_displacement")
+	local vertical_displacement = meta:get_float("itemshelf:vertical_displacement")
+	if depth_displacement == 0 then
+		depth_displacement = 0.25
+	end
+	if vertical_displacement == 0 then
+		vertical_displacement = 0.2375
+	end
+	minetest.log("displacements: "..dump(depth_displacement)..", "..dump(vertical_displacement))
+	-- Calculate the horizontal displacement. This one is hardcoded so that either 4 or 6
+	-- items are properly displayed.
+	local horizontal_displacement = 0.715
+	if max_shown_items == 6 then
+		horizontal_displacement = 0.555
+	end
 
 	-- Calculate initial position for entities
 	-- local start_pos = {
@@ -62,21 +81,17 @@ local function update_shelf(pos)
 	-- (e.g. 0.25) to the x and z coordinates, and then multiply these by the
 	-- the node direction (which is a vector pointing outwards of the node face).
 	-- Therefore, start_pos is:
-	local displacement = 0.715
-	if max_shown_items == 6 then
-		displacement = 0.555
-	end
 	local start_pos = {
-		x=pos.x - (obj_dir.x * displacement) + (node_dir.x * 0.25),
-		y=pos.y + 0.2375,
-		z=pos.z - (obj_dir.z * displacement) + (node_dir.z * 0.25)
+		x=pos.x - (obj_dir.x * horizontal_displacement) + (node_dir.x * depth_displacement),
+		y=pos.y + vertical_displacement,
+		z=pos.z - (obj_dir.z * horizontal_displacement) + (node_dir.z * depth_displacement)
 	}
 
 	-- Calculate amount of objects in the inventory
 	local inv = minetest.get_meta(pos):get_inventory()
 	local list = inv:get_list("main")
 	local obj_count = 0
-	for key,itemstack in pairs(list) do
+	for key, itemstack in pairs(list) do
 		if not itemstack:is_empty() then
 			obj_count = obj_count + 1
 		end
@@ -85,33 +100,34 @@ local function update_shelf(pos)
 	if obj_count > 0 then
 		local shown_items = math.min(#list, max_shown_items)
 		for i = 1, shown_items do
-			local overhead = i
+			local offset = i
 			if i > (shown_items / 2) then
-				overhead = i - (shown_items / 2)
+				offset = i - (shown_items / 2)
 			end
 			if i == ((shown_items / 2) + 1) then
 				start_pos.y = start_pos.y - 0.5125
 			end
-			local addition = 0.475
+			local item_displacement = 0.475
 			if shown_items == 6 then
-				addition = 0.2775
+				item_displacement = 0.2775
 			end
 			local obj_pos = {
-				x=start_pos.x + (addition * overhead * obj_dir.x), --- (node_dir.z * overhead * 0.25),
+				x=start_pos.x + (item_displacement * offset * obj_dir.x), --- (node_dir.z * overhead * 0.25),
 				y=start_pos.y,
-				z=start_pos.z + (addition * overhead * obj_dir.z) --- (node_dir.x * overhead * 0.25)
+				z=start_pos.z + (item_displacement * offset * obj_dir.z) --- (node_dir.x * overhead * 0.25)
 			}
 
 			if not list[i]:is_empty() then
 				minetest.log("Adding item entity at "..minetest.pos_to_string(obj_pos))
 				temp_texture = list[i]:get_name()
 				temp_size = 0.8/max_shown_items
-				minetest.log("Size: "..dump(temp_size))
+				--minetest.log("Size: "..dump(temp_size))
 				local ent = minetest.add_entity(obj_pos, "itemshelf:item")
 				ent:set_properties({
 					wield_item = temp_texture,
 					visual_size = {x = 0.8/max_shown_items, y = 0.8/max_shown_items}
 				})
+				ent:set_yaw(minetest.dir_to_yaw(minetest.facedir_to_dir(node.param2)))
 			end
 		end
 	end
@@ -127,11 +143,16 @@ itemshelf = {}
 --   - mesh (like default minetest.register_node def)
 --   - item capacity (how many items will fit into the shelf, use even numbers, max 16)
 --   - shown_items (how many items to show, will always show first (shown_items/2) items of each row, max 6)
+--   - `half-depth`: if set to true, will use different nodebox. Do not use with `depth_offset`
+--   - `vertical_offset`: starting position vertical displacement from the center of the node 
+--   - `depth_offset`: starting position depth displacement from the center of the node
 function itemshelf.register_shelf(name, def)
+	-- Determine drawtype
 	local drawtype = "nodebox"
 	if def.mesh then
 		drawtype = "mesh"
 	end
+
 	minetest.register_node("itemshelf:"..name, {
 		description = def.description,
 		tiles = def.textures,
@@ -148,6 +169,17 @@ function itemshelf.register_shelf(name, def)
 	    	inv:set_size("main", def.capacity or 4)
 	    	-- Initialize formspec
 	    	meta:set_string("formspec", get_shelf_formspec(def.capacity or 4))
+	    	-- If given half_depth, initialize the displacement
+	    	if def.half_depth == true then
+	    		meta:set_float("itemshelf:depth_displacement", -0.1475)
+	    	end
+	    	-- Initialize custom displacements if defined
+	    	if def.vertical_offset then
+	    		meta:set_float("itemshelf:vertical_displacement", def.vertical_offset)
+	    	end
+	    	if def.depth_offset then
+	    		meta:set_float("itemshelf:depth_displacement", def.depth_offset)
+	    	end
 		end,
 		-- allow_metadata_inventory_put = function(pos, listname, index, stack, player)
 		-- 	if minetest.get_item_group(stack:get_name(), "music_disc") ~= 0 then
