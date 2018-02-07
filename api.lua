@@ -204,7 +204,7 @@ function itemshelf.register_shelf(name, def)
 					x=math.random(pos.x - 0.5, pos.x + 0.5),
 					y=pos.y,
 					z=math.random(pos.z - 0.5, pos.z + 0.5)}
-				minetest.add_item(pos, item:get_name())
+				minetest.add_item(pos, item:to_string())
 			end
 			-- Remove node
 			minetest.remove_node(pos)
@@ -218,7 +218,7 @@ function itemshelf.register_shelf(name, def)
 					x=math.random(pos.x - 0.5, pos.x + 0.5),
 					y=pos.y,
 					z=math.random(pos.z - 0.5, pos.z + 0.5)}
-				minetest.add_item(pos, item:get_name())
+				minetest.add_item(pos, item:to_string())
 			end
 			-- Remove node
 			minetest.remove_node(pos)
