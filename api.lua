@@ -214,7 +214,16 @@ function itemshelf.register_shelf(name, def)
 			drops[#drops + 1] = "itemshelf:shelf"
 			minetest.remove_node(pos)
 			return drops
-		end
+		end,
+		-- Screwdriver support
+		on_rotate = function(pos, node, user, mode, new_param2) --{name = node.name, param1 = node.param1, param2 = node.param2}, user, mode, new_param2)
+			-- Rotate
+			node.param2 = new_param2
+			minetest.swap_node(pos, node)
+			update_shelf(pos)
+			-- Disable rotation by screwdriver
+			return false
+		end,
 	})
 end
 
