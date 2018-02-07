@@ -161,7 +161,7 @@ function itemshelf.register_shelf(name, def)
 		drawtype = drawtype,
 		node_box = def.nodebox,
 		mesh = def.mesh,
-		groups = {cracky = 2, itemshelf = 1, itemshelf_shown_items = def.shown_items or 4},
+		groups = {choppy = 2, itemshelf = 1, itemshelf_shown_items = def.shown_items or 4},
 		on_construct = function(pos)
 			-- Initialize inventory
 			local meta = minetest.get_meta(pos)
@@ -195,7 +195,8 @@ function itemshelf.register_shelf(name, def)
 			for _,obj in pairs(objs) do
 				obj:remove()
 			end
-			-- Pop-up disc if existing
+			-- Pop-up items
+			minetest.add_item(pos, node.name)
 			local meta = minetest.get_meta(pos)
 			local list = meta:get_inventory():get_list("main")
 			for _,item in pairs(list) do
@@ -209,11 +210,19 @@ function itemshelf.register_shelf(name, def)
 			minetest.remove_node(pos)
 		end,
 		on_blast = function(pos)
-			local drops = {}
-			default.get_inventory_drops(pos, "itemshelf:shelf", drops)
-			drops[#drops + 1] = "itemshelf:shelf"
+			minetest.add_item(pos, minetest.get_node(pos).name)
+			local meta = minetest.get_meta(pos)
+			local list = meta:get_inventory():get_list("main")
+			for _,item in pairs(list) do
+				local drop_pos = {
+					x=math.random(pos.x - 0.5, pos.x + 0.5),
+					y=pos.y,
+					z=math.random(pos.z - 0.5, pos.z + 0.5)}
+				minetest.add_item(pos, item:get_name())
+			end
+			-- Remove node
 			minetest.remove_node(pos)
-			return drops
+			return nil
 		end,
 		-- Screwdriver support
 		on_rotate = function(pos, node, user, mode, new_param2) --{name = node.name, param1 = node.param1, param2 = node.param2}, user, mode, new_param2)
