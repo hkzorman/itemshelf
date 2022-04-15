@@ -1,6 +1,9 @@
 Itemshelf
 =========
 
+
+[![ContentDB](https://content.minetest.net/packages/zorman2000/itemshelf/downloads/)](https://content.minetest.net/packages/zorman2000/itemshelf/)
+
 The item shelf mod is a simple mod that adds to shelves that can hold up to 4 or 6 items. This small limitation is due to the fact that shelves show the items they are holding using entities. The entities are purely static and consume 0 CPU (like the ones in itemframes for example), but still the limitation is to avoid lag.
 
 There are no crafting recipes at the moment. To get an item shelf, play on `creative` or use:
