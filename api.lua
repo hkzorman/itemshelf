@@ -181,16 +181,29 @@ function itemshelf.register_shelf(name, def)
 	    		meta:set_float("itemshelf:depth_displacement", def.depth_offset)
 	    	end
 		end,
-		-- allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		-- 	if minetest.get_item_group(stack:get_name(), "music_disc") ~= 0 then
-		-- 		return stack:get_count()
-		-- 	end
-		-- 	return 0
-		-- end,
+		allow_metadata_inventory_move = function(pos, from_list, from_index,
+				to_list, to_index, count, player)
+			if minetest.is_protected(pos, player:get_player_name()) then
+				return 0
+			end
+			return count
+		end,
+		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+			if minetest.is_protected(pos, player:get_player_name()) then
+				return 0
+			end
+			return stack:get_count()
+		end,
+		allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+			if minetest.is_protected(pos, player:get_player_name()) then
+				return 0
+			end
+			return stack:get_count()
+		end,
 		on_metadata_inventory_put = update_shelf,
 		on_metadata_inventory_take = update_shelf,
 		on_dig = function(pos, node, digger)
-			-- Clear any object disc
+			-- Clear all object objects
 			local objs = minetest.get_objects_inside_radius(pos, 0.7)
 			for _,obj in pairs(objs) do
 				obj:remove()
@@ -236,7 +249,7 @@ function itemshelf.register_shelf(name, def)
 	})
 end
 
--- Entity for shelf
+-- Entity for item displayed on shelf
 minetest.register_entity("itemshelf:item", {
 	hp_max = 1,
 	visual = "wielditem",
@@ -265,7 +278,7 @@ minetest.register_entity("itemshelf:item", {
 		if self.itemstring ~= nil then
 			self.wield_item = self.itemstring
 		end
-		
+
 		-- Visual size
 		if temp_size ~= nil then
 			self.visualsize = temp_size
@@ -280,7 +293,7 @@ minetest.register_entity("itemshelf:item", {
 
 		-- Set object properties
 		self.object:set_properties(self)
-		
+
 	end,
 	get_staticdata = function(self)
 		local result = ""

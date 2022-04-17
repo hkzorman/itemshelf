@@ -1,13 +1,17 @@
 Itemshelf
 =========
 
-
-[![ContentDB](https://content.minetest.net/packages/zorman2000/itemshelf/downloads/)](https://content.minetest.net/packages/zorman2000/itemshelf/)
+[![ContentDB](https://content.minetest.net/packages/zorman2000/itemshelf/shields/downloads/)](https://content.minetest.net/packages/zorman2000/itemshelf/)
 
 The item shelf mod is a simple mod that adds to shelves that can hold up to 4 or 6 items. This small limitation is due to the fact that shelves show the items they are holding using entities. The entities are purely static and consume 0 CPU (like the ones in itemframes for example), but still the limitation is to avoid lag.
 
-There are no crafting recipes at the moment. To get an item shelf, play on `creative` or use:
-`/giveme itemshelf:small_shelf` or `/giveme itemshelf:large_shelf`. Both shelves are of the same size, however they can hold 4 or 6 items respectively. 
+Shelves should work with protection mods (currently only tested with `areas` mod). Without any protection they are public, otherwise they obey the proection of the area
+
+There are three different types of shelves, and all three come in two different flavors: holding 4 or 6 items.
+  - Shelf: like a bookshelf, one cube wide
+  - Half shelf: while not exactly half a cube, it is less deep
+  - Half open shelf: like the above, but with no back
+
 
 Developers
 ----------
@@ -29,8 +33,11 @@ All code is copyright (C) 2018 Hector Franqui (zorman2000), licensed under the M
 
 Roadmap
 -------
-  - Add shelves in all varieties of woods
-  - Add crafting recipe
-  - Add sounds when placing items
+  - ~~Add shelves in all varieties of woods~~
+  - ~~Add crafting recipe~~
+  - Add sounds
   - Allow shelves to contain only specific items
-  - Allow overlays if shelf holds specific items 
+  - Allow overlays if shelf holds specific items
+
+
+![Preview](https://github.com/hkzorman/itemshelf/screenshot.png)
