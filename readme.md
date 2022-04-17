@@ -40,4 +40,4 @@ Roadmap
   - Allow overlays if shelf holds specific items
 
 
-![Preview](https://github.com/hkzorman/itemshelf/screenshot.png)
+![Preview](https://github.com/hkzorman/itemshelf/blob/master/screenshot.png)
