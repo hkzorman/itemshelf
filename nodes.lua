@@ -192,8 +192,8 @@ local function register_node_and_recipe(item_name, material_name, display_prefix
 end
 
 -- Register nodes and recipes on all minetest_game wood types
-register_node_and_recipe("default:wood", "", "Apple Wood", "default_wood.png")
-register_node_and_recipe("default:pine_wood", "pine", "Pine Wood", "default_pine_wood.png")
-register_node_and_recipe("default:aspen_wood", "aspen", "Aspen Wood", "default_aspen_wood.png")
-register_node_and_recipe("default:acacia_wood", "acacia", "Acacia Wood", "default_acacia_wood.png")
-register_node_and_recipe("default:junglewood", "jungle", "Jungle Wood", "default_junglewood.png")
+register_node_and_recipe("stairs:slab_wood", "", "Apple Wood", "default_wood.png")
+register_node_and_recipe("stairs:slab_pine_wood", "pine", "Pine Wood", "default_pine_wood.png")
+register_node_and_recipe("stairs:slab_aspen_wood", "aspen", "Aspen Wood", "default_aspen_wood.png")
+register_node_and_recipe("stairs:slab_acacia_wood", "acacia", "Acacia Wood", "default_acacia_wood.png")
+register_node_and_recipe("stairs:slab_junglewood", "jungle", "Jungle Wood", "default_junglewood.png")
